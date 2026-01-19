@@ -1,0 +1,31 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { PrismaClient } from '@prisma/client';
+import geocodeRouter from './routes/geocode.js';
+import routeRouter from './routes/route.js';
+import reportsRouter, { heatTilesRouter, poisRouter } from './routes/reports.js';
+import authRouter from './routes/auth.js';
+import buddyRouter from './routes/buddy.js';
+import messagesRouter from './routes/messages.js';
+dotenv.config();
+const app = express();
+const prisma = new PrismaClient();
+const PORT = Number(process.env.PORT || 3001);
+const ORIGIN = process.env.CORS_ORIGIN || '*';
+app.use(cors({ origin: ORIGIN }));
+app.use(express.json({ limit: '2mb' }));
+app.get('/', (_req, res) => {
+    res.json({ ok: true, service: 'access-nav-backend', indoor: false, eco: true });
+});
+app.use('/api/geocode', geocodeRouter);
+app.use('/api/route', routeRouter);
+app.use('/api/reports', reportsRouter);
+app.use('/api/tiles/heatmap', heatTilesRouter);
+app.use('/api/pois', poisRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/buddy', buddyRouter);
+app.use('/api/messages', messagesRouter);
+app.listen(PORT, () => {
+    console.log(`[backend] listening on :${PORT}`);
+});
